@@ -105,13 +105,23 @@
       v-bind:class.sync="anotherClass"
     ></custom-component>
 
-    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+    <h3>Vuex</h3>
+
+    <button @click="increment">Push me {{ count }}</button>
+    <button @click="incrementAsync">Don't push me that hard</button>
+    <button @click="decrement">Don't push me</button>
+
+    <div>{{ aState }}</div>
+    <div>{{ anotherState }}</div>
+    <div>{{ specialItems }}</div>
+    <div>{{ firstItem }}</div>
   </div>
 </template>
 <script>
   import ChildComponent from '@/components/ChildComponent.vue';
   import SiblingComponent from '@/components/SiblingComponent.vue';
   import CustomComponent from '@/components/CustomComponent.vue';
+  import {mapActions, mapGetters, mapMutations, mapState} from 'vuex';
 
   export default {
     components: {
@@ -151,6 +161,20 @@
       }
     },
     computed: {
+      ...mapState({
+        aState() {
+          return this.$store.state.aState;
+        },
+        anotherState() {
+          return this.$store.state.anotherState;
+        },
+        specialItems() {
+          return this.$store.getters.specialItems;
+        }
+      }),
+      ...mapGetters([
+        'firstItem'
+      ]),
       selectedCheckboxes() {
         return this.checkboxes.sort((a, b) => a.localeCompare(b)).join(' ');
       },
@@ -167,6 +191,9 @@
         set(v) {
           this.message = v.replace(/<[^>]*>?/gm, '');
         }
+      },
+      count() {
+        return this.$store.state.count;
       }
     },
     watch: {
@@ -175,6 +202,12 @@
       }
     },
     methods: {
+      ...mapMutations({
+        decrement: 'decrement'
+      }),
+      ...mapActions({
+        incrementAsync: 'incrementAsync'
+      }),
       logEvent(evt) {
         console.log(evt);
       },
@@ -183,6 +216,9 @@
       },
       confirmInput() {
         console.log('confirm input');
+      },
+      increment() {
+        this.$store.commit('increment', 1);
       }
     },
   }
