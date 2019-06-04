@@ -1,4 +1,4 @@
-<template>
+<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <div>
     <h3>Bi-directional binding</h3>
 
@@ -59,12 +59,73 @@
 
     <button @click="logEvent($event)">Push me</button>
 
+    <h3>Inputs</h3>
+
+    <label>
+      <input type="checkbox" v-model="checkboxes" value="Value #1">Value #1
+    </label>
+
+    <label>
+      <input type="checkbox" v-model="checkboxes" value="Value #2">Value #2
+    </label>
+
+    <label>
+      <input type="checkbox" v-model="checkboxes" value="Value #3">Value #3
+    </label>
+
+    <div>{{ selectedCheckboxes }}</div>
+
+    <br>
+
+    <select v-model="options" multiple>
+      <option value="Option #1">Option #1</option>
+      <option value="Option #2">Option #2</option>
+      <option value="Option #3">Option #3</option>
+    </select>
+
+    <div>{{ selectedOptions }}</div>
+
+    <h3 class="text-lg-right">Components</h3>
+
+    <child-component :text="childText" @change-text="changeText" v-model="childValue" class="sibling-class">
+      <template v-slot:default="{ childToParentValue }"></template>
+
+      <template #subheader>New subheader</template>
+    </child-component>
+
+    <!-- Suitable when part of ul/table when children are different components but have restrictions -->
+    <component is="child-component" :text="childText" @change-text="changeText" v-model="childValue"></component>
+    <component is="sibling-component" v-model="siblingValue"></component>
+
+    <!-- Custom model definition -->
+    <custom-component
+      v-model="lovingVue"
+      id="test-checkbox"
+      @input="confirmInput"
+      v-bind:class.sync="anotherClass"
+    ></custom-component>
+
+    <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
   </div>
 </template>
 <script>
+  import ChildComponent from '@/components/ChildComponent.vue';
+  import SiblingComponent from '@/components/SiblingComponent.vue';
+  import CustomComponent from '@/components/CustomComponent.vue';
+
   export default {
+    components: {
+      ChildComponent,
+      SiblingComponent,
+      CustomComponent
+    },
     data() {
       return {
+        anotherClass: 'another-class',
+        lovingVue: false,
+        childValue: 'child value',
+        siblingValue: 'sibling value',
+        childText: 'Child text',
         customClass: 'my-custom-class',
         onlyOnce: 'test',
         htmlSample: '<b>Html sample</b>',
@@ -84,10 +145,18 @@
             id: 3,
             title: 'Title #3',
           }
-        ]
+        ],
+        checkboxes: [],
+        options: []
       }
     },
     computed: {
+      selectedCheckboxes() {
+        return this.checkboxes.sort((a, b) => a.localeCompare(b)).join(' ');
+      },
+      selectedOptions() {
+        return this.options.sort((a, b) => a.localeCompare(b)).join(' ');
+      },
       reversedClass() {
         return this.customClass.split('').reverse().join('');
       },
@@ -108,7 +177,13 @@
     methods: {
       logEvent(evt) {
         console.log(evt);
+      },
+      changeText() {
+        this.childText += ' New text.';
+      },
+      confirmInput() {
+        console.log('confirm input');
       }
-    }
+    },
   }
 </script>
